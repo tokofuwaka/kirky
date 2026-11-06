@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Campus Clash 4000</title>
+  <style>
+    :root {
+      --bg: #f6f0e6;
+      --ink: #1d2130;
+      --panel: #ffffff;
+      --muted: #5e6679;
+      --navy: #181f35;
+      --red: #d5454a;
+      --gold: #f2c66d;
+      --green: #3e8b63;
+      --shadow: rgba(16, 22, 35, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+    }
+
+    header {
+      padding: 24px clamp(16px, 4vw, 40px);
+      background: linear-gradient(135deg, #101a32, #24375f 55%, #13203d);
+      color: white;
+      border-bottom: 6px solid var(--red);
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(2rem, 4vw, 3.3rem);
+      letter-spacing: -0.04em;
+    }
+
+    .subtitle {
+      color: rgba(255,255,255,0.8);
+      margin: 0;
+      max-width: 760px;
+      font-size: 1rem;
+    }
+
+    .wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px 18px 60px;
+    }
+
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: var(--gold);
+      color: var(--navy);
+      font-weight: 800;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    input, select, button {
+      font: inherit;
+      border-radius: 10px;
+      border: 1px solid #d8dfe9;
+      padding: 10px 12px;
+    }
+
+    input {
+      flex: 1 1 240px;
+      min-width: 180px;
+      background: white;
+    }
+
+    select {
+      min-width: 190px;
+      background: white;
+    }
+
+    button {
+      background: var(--red);
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: 700;
+      transition: transform 0.12s ease, opacity 0.15s ease;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button:active { transform: translateY(0); }
+    button:disabled { opacity: .45; cursor: default; transform: none; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(225px, 1fr));
+      gap: 14px;
+      margin-top: 12px;
+    }
+
+    .card {
+      background: var(--panel);
+      border-radius: 14px;
+      border: 1px solid #e2e7ee;
+      box-shadow: 0 4px 14px var(--shadow);
+      padding: 15px;
+    }
+
+    .tag {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 8px;
+    }
+
+    .card h3 {
+      margin: 0 0 8px;
+      font-size: 1.06rem;
+      line-height: 1.3;
+    }
+
+    .card p {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 0.92rem;
+      min-height: 58px;
+    }
+
+    .mini {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .card button {
+      width: 100%;
+      padding: 11px 12px;
+    }
+
+    .pager {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 14px;
+      margin: 20px 0 10px;
+    }
+
+    .play-panel {
+      display: none;
+      margin-top: 12px;
+      background: white;
+      border: 1px solid #e2e7ee;
+      box-shadow: 0 6px 18px var(--shadow);
+      border-radius: 18px;
+      padding: 16px;
+    }
+
+    .play-panel.visible {
+      display: block;
+    }
+
+    .panel-header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .panel-title {
+      margin: 0;
+      font-size: clamp(1.4rem, 3vw, 2.2rem);
+    }
+
+    .panel-meta {
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    .status {
+      margin: 12px 0 14px;
+      font-weight: 800;
+      color: var(--navy);
+    }
+
+    .arena {
+      position: relative;
+      overflow: hidden;
+      height: 290px;
+      background: linear-gradient(180deg, #dfeaf8 0%, #fdf5e7 100%);
+      border: 2px solid #d5dfe9;
+      border-radius: 16px;
+      touch-action: none;
+    }
+
+    .target {
+      position: absolute;
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      cursor: pointer;
+      color: white;
+      background: var(--red);
+      box-shadow: 0 8px 18px rgba(0,0,0,0.18);
+      user-select: none;
+    }
+
+    .tile {
+      position: absolute;
+      width: 52px;
+      height: 52px;
+      background: var(--navy);
+      border-radius: 10px;
+      color: white;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      box-shadow: 0 6px 12px rgba(18, 21, 32, 0.14);
+      cursor: pointer;
+    }
+
+    .obstacle {
+      position: absolute;
+      width: 32px;
+      height: 32px;
+      background: var(--red);
+      border-radius: 8px;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.12);
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .option {
+      width: 100%;
+      margin-top: 8px;
+      background: #f5f7fb;
+      border: 1px solid #dfe6ef;
+      color: var(--ink);
+      text-align: left;
+      padding: 12px;
+    }
+
+    .question {
+      margin: 0 0 12px;
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .footer-note {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    @media (max-width: 580px) {
+      .toolbar { flex-direction: column; }
+      .toolbar > * { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Campus Clash 4000</h1>
+    <p class="subtitle">
+      A Roblox-style campus arcade generator with 4,000 distinct game variations built from the same engine.
+    </p>
+  </header>
+
+  <div class="wrap">
+    <div class="topbar">
+      <span class="pill">4,000 game variants</span>
+      <span id="countText">0 games</span>
+    </div>
+
+    <div class="toolbar">
+      <input id="searchInput" type="search" placeholder="Search title, arena, or mode..." />
+      <select id="modeFilter">
+        <option value="">All modes</option>
+      </select>
+      <button id="resetButton">Reset</button>
+    </div>
+
+    <div id="playPanel" class="play-panel"></div>
+
+    <div id="gameGrid" class="grid"></div>
+
+    <div class="pager">
+      <button id="prevPage" type="button">Previous</button>
+      <span id="pageLabel">Page 1</span>
+      <button id="nextPage" type="button">Next</button>
+    </div>
+
+    <div class="footer-note">
+      Fan-made browser prototype. Built for fast procedural generation, not a commercial Roblox clone or official product.
+    </div>
+  </div>
+
+  <script>
+    const gameModes = [
+      "Reaction Rush",
+      "Debate Dash",
+      "Truth Trail",
+      "Memory Vault",
+      "Signal Search",
+      "Podium Pop",
+      "Campus Sprint",
+      "Final Bell",
+      "Word Sweep",
+      "Accuracy Arena"
+    ];
+
+    const arenas = [
+      "Liberty Quad",
+      "North Lawn",
+      "Civic Steps",
+      "Founders Hall",
+      "Maple Court",
+      "Sunset Plaza",
+      "Forum Dome",
+      "Old Library",
+      "Union Commons",
+      "Redbrick Yard",
+      "Summit Arena",
+      "West Courtyard",
+      "Riverside Walk",
+      "Congress Hall",
+      "Heritage Garden",
+      "Innovation Arcade",
+      "Clocktower Plaza",
+      "Scholar Hall",
+      "Main Steps",
+      "Campus Green"
+    ];
+
+    const rules = [
+      "Speed Round",
+      "No Hints",
+      "Perfect Chain",
+      "Double Score",
+      "Final Push",
+      "Quick Start",
+      "Silent Focus",
+      "Chaos Mode",
+      "Lucky Loop",
+      "Gold Medal"
+    ];
+
+    const objectives = [
+      "Collect all flags",
+      "Finish before the bell",
+      "Hit the correct target",
+      "Match every symbol",
+      "Protect the podium",
+      "Activate the signal pads",
+      "Answer every prompt",
+      "Beat the countdown",
+      "Find the hidden clue",
+      "Complete the streak"
+    ];
+
+    const adjectives = [
+      "Bold", "Civic", "Rapid", "Fierce", "Accurate", "Silver", "Golden", "Smart", "Steady", "Electric",
+      "Shadow", "Storm", "Turbo", "Prime", "Wild", "Sharp", "Classic", "Rally", "Fusion", "Elite"
+    ];
+
+    const themes = [
+      "campus", "debate", "leaders", "strategy", "signal", "lights", "arena", "charter", "forum", "rally"
+    ];
+
+    function hashString(str) {
+      let h = 2166136261;
+      for (let i = 0; i < str.length; i++) {
+        h ^= str.charCodeAt(i);
+        h = Math.imul(h, 16777619);
+      }
+      return (h >>> 0);
+    }
+
+    function mulberry32(a) {
+      return function() {
+        let t = a += 0x6D2B79F5;
+        t = Math.imul(t ^ t >>> 15, t | 1);
+        t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
+      };
+    }
+
+    function makeGames() {
+      const games = [];
+      const total = 4000;
+
+      for (let i = 0; i < total; i++) {
+        const mode = gameModes[i % gameModes.length];
+        const arena = arenas[i % arenas.length];
+        const rule = rules[(i * 3) % rules.length];
+        const objective = objectives[(i * 5) % objectives.length];
+        const adjective = adjectives[(i * 7) % adjectives.length];
+        const theme = themes[(i * 11) % themes.length];
+        const seed = hashString(`${i}-${mode}-${arena}-${rule}-${objective}`);
+        const rand = mulberry32(seed);
+
+        const modeKey = mode.toLowerCase().replace(/[^a-z]+/g, "-").replace(/-$/, "");
+        const game = {
+          id: i + 1,
+          title: `${adjective} ${theme} ${mode}`,
+          mode,
+          arena,
+          rule,
+          objective,
+          difficulty: Math.floor(rand() * 5) + 1,
+          reward: Math.floor(rand() * 900) + 100,
+          boost: ["Turbo", "Focus", "Combo", "Shield", "Lucky"][Math.floor(rand() * 5)],
+          quickText: `${arena} • ${rule} • ${objective}`,
+          seed,
+          modeKey,
+          description: `${mode} in ${arena}. Objective: ${objective}. Rule set: ${rule}.`
+        };
+
+        games.push(game);
+      }
+
+      return games;
+    }
+
+    const allGames = makeGames();
+
+    const gameGrid = document.getElementById("gameGrid");
+    const searchInput = document.getElementById("searchInput");
+    const modeFilter = document.getElementById("modeFilter");
+    const countText = document.getElementById("countText");
+    const playPanel = document.getElementById("playPanel");
+    const prevPage = document.getElementById("prevPage");
+    const nextPage = document.getElementById("nextPage");
+    const pageLabel = document.getElementById("pageLabel");
+    const resetButton = document.getElementById("resetButton");
+
+    let currentPage = 0;
+    const pageSize = 24;
+
+    function populateFilters() {
+      const uniqueModes = [...new Set(allGames.map(g => g.mode))].sort();
+      uniqueModes.forEach(mode => {
+        const opt = document.createElement("option");
+        opt.value = mode;
+        opt.textContent = mode;
+        modeFilter.appendChild(opt);
+      });
+    }
+
+    function getFilteredGames() {
+      const q = searchInput.value.trim().toLowerCase();
+      const selectedMode = modeFilter.value;
+
+      return allGames.filter(game => {
+        const matchesText = !q ||
+          `${game.title} ${game.mode} ${game.arena} ${game.rule} ${game.objective}`.toLowerCase().includes(q);
+        const matchesMode = !selectedMode || game.mode === selectedMode;
+        return matchesText && matchesMode;
+      });
+    }
+
+    function renderList() {
+      const filtered = getFilteredGames();
+      const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+      currentPage = Math.min(currentPage, totalPages - 1);
+
+      countText.textContent = `${filtered.length.toLocaleString()} games`;
+      pageLabel.textContent = `Page ${currentPage + 1} of ${totalPages}`;
+
+      const start = currentPage * pageSize;
+      const slice = filtered.slice(start, start + pageSize);
+
+      gameGrid.innerHTML = "";
+
+      if (!slice.length) {
+        const empty = document.createElement("div");
+        empty.className = "card";
+        empty.innerHTML = "<h3>No games found</h3><p>Try a different search or reset the filters.</p>";
+        gameGrid.appendChild(empty);
+      } else {
+        slice.forEach(game => {
+          const card = document.createElement("article");
+          card.className = "card";
+
+          card.innerHTML = `
+            <div class="tag">${game.mode}</div>
+            <h3>${game.title}</h3>
+            <div class="mini">
+              <span>#${game.id}</span>
+              <span>•</span>
+              <span>${game.arena}</span>
+              <span>•</span>
+              <span>Lv ${game.difficulty}</span>
+            </div>
+            <p>${game.description}</p>
+            <div class="mini">
+              <span>Reward: ${game.reward}</span>
+              <span>•</span>
+              <span>${game.boost}</span>
+            </div>
+            <button type="button">Play</button>
+          `;
+
+          card.querySelector("button").addEventListener("click", () => launchGame(game));
+          gameGrid.appendChild(card);
+        });
+      }
+
+      prevPage.disabled = currentPage === 0;
+      nextPage.disabled = currentPage >= totalPages - 1;
+    }
+
+    function closePanel() {
+      playPanel.classList.remove("visible");
+      playPanel.innerHTML = "";
+    }
+
+    function launchGame(game) {
+      playPanel.classList.add("visible");
+      playPanel.innerHTML = `
+        <div class="panel-header">
+          <div>
+            <div class="tag">${game.mode}</div>
+            <h2 class="panel-title">${game.title}</h2>
+            <div class="panel-meta">Arena: ${game.arena} • Rule: ${game.rule} • Goal: ${game.objective}</div>
+          </div>
+          <button type="button" id="closeBtn">Close</button>
+        </div>
+        <div class="status" id="statusText">Ready to play.</div>
+        <div id="arena" class="arena"></div>
+      `;
+
+      document.getElementById("closeBtn").addEventListener("click", closePanel);
+
+      const arenaEl = document.getElementById("arena");
+      const statusText = document.getElementById("statusText");
+
+      const mode = game.mode;
+
+      if (mode === "Reaction Rush") {
+        runReactionMode(game, arenaEl, statusText);
+      } else if (mode === "Debate Dash") {
+        runDebateDash(game, arenaEl, statusText);
+      } else if (mode === "Truth Trail") {
+        runTruthTrail(game, arenaEl, statusText);
+      } else if (mode === "Memory Vault") {
+        runMemoryVault(game, arenaEl, statusText);
+      } else if (mode === "Signal Search") {
+        runSignalSearch(game, arenaEl, statusText);
+      } else if (mode === "Podium Pop") {
+        runPodiumPop(game, arenaEl, statusText);
+      } else if (mode === "Campus Sprint") {
+        runCampusSprint(game, arenaEl, statusText);
+      } else if (mode === "Final Bell") {
+        runFinalBell(game, arenaEl, statusText);
+      } else if (mode === "Word Sweep") {
+        runWordSweep(game, arenaEl, statusText);
+      } else {
+        runAccuracyArena(game, arenaEl, statusText);
+      }
+    }
+
+    function makeButton(x, y, w, h, label, onClick, klass = "target") {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = klass;
+      btn.style.left = x + "px";
+      btn.style.top = y + "px";
+      btn.style.width = w + "px";
+      btn.style.height = h + "px";
+      btn.textContent = label;
+      btn.addEventListener("click", onClick);
+      return btn;
+    }
+
+    function runReactionMode(game, arena, statusText) {
+      const start = Date.now();
+      let score = 0;
+      const duration = 18;
+      const targetSize = 54;
+
+      const target = makeButton(
+        100 + (game.seed % 220),
+        80 + (game.seed % 120),
+        targetSize,
+        targetSize,
+        "!",
+        () => {
+          score++;
+          statusText.textContent = `Score: ${score}`;
+          moveTarget();
+        }
+      );
+
+      arena.appendChild(target);
+
+      function moveTarget() {
+        const maxX = arena.clientWidth - targetSize - 10;
+        const maxY = arena.clientHeight - targetSize - 10;
+        const x = 10 + ((game.seed + score * 47) % maxX);
+        const y = 10 + ((game.seed * 3 + score * 97) % maxY);
+        target.style.left = x + "px";
+        target.style.top = y + "px";
+      }
+
+      moveTarget();
+
+      const timer = setInterval(() => {
+        const elapsed = (Date.now() - start) / 1000;
+        if (elapsed >= duration) {
+          clearInterval(timer);
+          statusText.textContent = `Time up! Final score: ${score}`;
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.textContent = "Play again";
+          btn.style.marginTop = "12px";
+          btn.addEventListener("click", () => launchGame(game));
+          arena.appendChild(btn);
+          target.remove();
+        }
+      }, 50);
+    }
+
+    function runDebateDash(game, arena, statusText) {
+      const choices = ["Facts", "Evidence", "Reason", "Context", "Civility", "Clarity"];
+      const correct = choices[(game.seed + 1) % choices.length];
+      let correctIndex = 0;
+
+      const prompt = document.createElement("div");
+      prompt.className = "question";
+      prompt.textContent = "Choose the strongest response to the claim:";
+      arena.appendChild(prompt);
+
+      const answerBox = document.createElement("div");
+      answerBox.style.display = "flex";
+      answerBox.style.flexDirection = "column";
+      answerBox.style.gap = "8px";
+      answerBox.style.marginTop = "12px";
+
+      const shuffled = [...choices].sort(() => Math.random() - 0.5);
+      shuffled.forEach(option => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "option";
+        b.textContent = option;
+        b.addEventListener("click", () => {
+          statusText.textContent = option === correct ? "Correct — strong reasoning wins." : `Close, but the best answer was "${correct}".`;
+        });
+        answerBox.appendChild(b);
+      });
+
+      arena.appendChild(answerBox);
+    }
+
+    function runTruthTrail(game, arena, statusText) {
+      const facts = [
+        "Evidence should be checked before sharing.",
+        "Clarity usually beats volume in debate.",
+        "Good arguments are based on sources.",
+        "Respectful disagreement moves the room forward.",
+        "A strong claim needs support and context."
+      ];
+
+      const track = document.createElement("div");
+      track.style.position = "relative";
+      track.style.height = "100%";
+      arena.appendChild(track);
+
+      let score = 0;
+      const nodes = facts.map((fact, i) => {
+        const node = makeButton(
+          24 + (i * 90) % 220,
+          42 + (i * 29) % 120,
+          68,
+          68,
+          `${i + 1}`,
+          () => {
+            score++;
+            statusText.textContent = `Correct steps: ${score}/${facts.length}`;
+            node.style.background = "#3e8b63";
+            node.disabled = true;
+            if (score === facts.length) {
+              statusText.textContent = "Trail complete — you followed the truth path.";
+            }
+          },
+          "target"
+        );
+        track.appendChild(node);
+        return node;
+      });
+    }
+
+    function runMemoryVault(game, arena, statusText) {
+      const symbols = ["▲", "●", "■", "★", "◎", "◆"];
+      const deck = [...symbols, ...symbols].sort(() => Math.random() - 0.5);
+      const tiles = [];
+      let selected = [];
+
+      function makeTile(value, idx) {
+        const tile = document.createElement("button");
+        tile.type = "button";
+        tile.className = "tile";
+        tile.textContent = "?";
+        tile.style.left = (idx % 4) * 72 + 12 + "px";
+        tile.style.top = Math.floor(idx / 4) * 72 + 18 + "px";
+        tile.addEventListener("click", () => {
+          if (selected.length === 2 || tile.dataset.open === "1") return;
+          tile.textContent = value;
+          tile.dataset.open = "1";
+          selected.push({ tile, value });
+
+          if (selected.length === 2) {
+            if (selected[0].value === selected[1].value) {
+              statusText.textContent = "Match found!";
+              selected = [];
+              tiles.filter(t => t.dataset.open === "1").forEach(t => t.disabled = true);
+            } else {
+              statusText.textContent = "Not a match — try again.";
+              setTimeout(() => {
+                selected.forEach(({ tile }) => {
+                  tile.textContent = "?";
+                  tile.dataset.open = "0";
+                });
+                selected = [];
+              }, 700);
+            }
+          }
+        });
+        arena.appendChild(tile);
+        return tile;
+      }
+
+      deck.forEach((value, index) => {
+        const t = makeTile(value, index);
+        tiles.push(t);
+      });
+    }
+
+    function runSignalSearch(game, arena, statusText) {
+      const signals = ["A", "B", "C", "D", "E", "F", "G"];
+      const target = signals[(game.seed * 3) % signals.length];
+      const options = [...signals].sort(() => Math.random() - 0.5);
+
+      const prompt = document.createElement("div");
+      prompt.className = "question";
+      prompt.textContent = `Find the signal that matches the prompt: "${target}"`;
+      arena.appendChild(prompt);
+
+      const wrap = document.createElement("div");
+      wrap.style.display = "grid";
+      wrap.style.gridTemplateColumns = "repeat(3, minmax(60px, 1fr))";
+      wrap.style.gap = "10px";
+      wrap.style.marginTop = "10px";
+
+      options.forEach(val => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "option";
+        b.textContent = val;
+        b.addEventListener("click", () => {
+          statusText.textContent = val === target ? "Signal located! Correct target found." : `Wrong signal — the correct one was ${target}.`;
+        });
+        wrap.appendChild(b);
+      });
+
+      arena.appendChild(wrap);
+    }
+
+    function runPodiumPop(game, arena, statusText) {
+      const count = 10;
+      const targets = [];
+
+      for (let i = 0; i < count; i++) {
+        const x = 18 + (i % 5) * 78;
+        const y = 24 + Math.floor(i / 5) * 80;
+        const button = makeButton(x, y, 52, 52, i + 1, () => {
+          button.remove();
+          statusText.textContent = `Target cleared: ${targets.length - 1}`;
+        }, "target");
+        targets.push(button);
+        arena.appendChild(button);
+      }
+    }
+
+    function runCampusSprint(game, arena, statusText) {
+      const player = document.createElement("div");
+      player.style.position = "absolute";
+      player.style.left = "20px";
+      player.style.bottom = "20px";
+      player.style.width = "26px";
+      player.style.height = "26px";
+      player.style.background = "#1d2130";
+      player.style.borderRadius = "8px";
+      player.style.boxShadow = "0 8px 16px rgba(0,0,0,0.15)";
+      arena.appendChild(player);
+
+      let x = 20;
+      statusText.textContent = "Use arrow keys or A/D to sprint.";
+
+      function move(delta) {
+        x = Math.max(0, Math.min(arena.clientWidth - 30, x + delta));
+        player.style.left = x + "px";
+      }
+
+      document.addEventListener("keydown", (e) => {
+        const k = e.key.toLowerCase();
+        if (k === "arrowleft" || k === "a") move(-28);
+        if (k === "arrowright" || k === "d") move(28);
+      });
+
+      for (let i = 0; i < 7; i++) {
+        const block = document.createElement("div");
+        block.className = "obstacle";
+        block.style.left = (i * 85 + 80) + "px";
+        block.style.top = "20px";
+        arena.appendChild(block);
+      }
+    }
+
+    function runFinalBell(game, arena, statusText) {
+      const clock = document.createElement("div");
+      clock.style.fontSize = "52px";
+      clock.style.fontWeight = "800";
+      clock.style.textAlign = "center";
+      clock.style.lineHeight = "1";
+      clock.style.paddingTop = "42px";
+      clock.textContent = "10";
+      arena.appendChild(clock);
+
+      let seconds = 10;
+      statusText.textContent = "Beat the final bell!";
+      const timer = setInterval(() => {
+        seconds--;
+        clock.textContent = seconds;
+        if (seconds <= 0) {
+          clearInterval(timer);
+          statusText.textContent = "Bell! Time is up.";
+          clock.textContent = "DONE";
+        }
+      }, 1000);
+    }
+
+    function runWordSweep(game, arena, statusText) {
+      const wordBank = ["Civility", "Purpose", "Proof", "Focus", "Reason", "Truth", "Clarity", "Order"];
+      const target = wordBank[(game.seed + 2) % wordBank.length];
+
+      const prompt = document.createElement("div");
+      prompt.className = "question";
+      prompt.textContent = `Pick the word that best fits the argument: ${target}`;
+      arena.appendChild(prompt);
+
+      const options = [...wordBank].sort(() => Math.random() - 0.5);
+      options.forEach(word => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "option";
+        b.textContent = word;
+        b.addEventListener("click", () => {
+          statusText.textContent = word === target ? "Perfect word choice." : `Close, the strongest fit was "${target}".`;
+        });
+        arena.appendChild(b);
+      });
+    }
+
+    function runAccuracyArena(game, arena, statusText) {
+      const qList = [
+        "What makes a claim stronger?",
+        "What supports good debate?",
+        "What improves a discussion?",
+        "What does a fair argument need?",
+        "What helps avoid confusion?"
+      ];
+
+      const answers = [
+        ["Evidence", "Noise", "Volume", "Distraction"],
+        ["Sources", "Confusion", "Chaos", "Rushing"],
+        ["Listening", "Mocking", "Interrupting", "Ignoring"],
+        ["Context", "Speed", "Slogans", "Silence"],
+        ["Clarity", "Hype", "Panic", "Ambiguity"]
+      ];
+
+      const idx = game.seed % qList.length;
+      const prompt = document.createElement("div");
+      prompt.className = "question";
+      prompt.textContent = qList[idx];
+      arena.appendChild(prompt);
+
+      const correct = answers[idx][0];
+      const answerSet = [...answers[idx]].sort(() => Math.random() - 0.5);
+
+      answerSet.forEach(opt => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "option";
+        b.textContent = opt;
+        b.addEventListener("click", () => {
+          statusText.textContent = opt === correct ? "Correct — accuracy wins." : `Correct answer: "${correct}".`;
+        });
+        arena.appendChild(b);
+      });
+    }
+
+    searchInput.addEventListener("input", () => {
+      currentPage = 0;
+      renderList();
+    });
+
+    modeFilter.addEventListener("change", () => {
+      currentPage = 0;
+      renderList();
+    });
+
+    prevPage.addEventListener("click", () => {
+      if (currentPage > 0) {
+        currentPage--;
+        renderList();
+      }
+    });
+
+    nextPage.addEventListener("click", () => {
+      const filtered = getFilteredGames();
+      const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+      if (currentPage < totalPages - 1) {
+        currentPage++;
+        renderList();
+      }
+    });
+
+    resetButton.addEventListener("click", () => {
+      searchInput.value = "";
+      modeFilter.value = "";
+      currentPage = 0;
+      renderList();
+    });
+
+    populateFilters();
+    renderList();
+  </script>
+</body>
+</html>
